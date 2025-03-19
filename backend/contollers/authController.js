@@ -255,5 +255,176 @@ async function verifyOtp(req,res){
     });
   }
 }
+ //checking user is authorized or not
 
-module.exports = { register, login,logout ,sendVerificationOtp,verifyOtp};
+ async function isAuthenticated(req,res){
+  try{
+    return res.json({sucess:true,message:"user is autherized"})
+  }
+  catch(err){
+    return res.json({
+      success: false,
+      message: err.message,
+    });
+  }
+
+  
+ }
+
+
+ async function sendResetOtp(req,res){
+  const {email}=req.body;
+  if(!email){
+    return res.json({
+      success:false,
+      message:"Please provide all the required details",
+    })
+  }
+  try{
+    const user=await userModel.findOne({email});
+    if(!user){
+      return res.json({
+        success:false,
+        message:"user not found",
+      })
+    }
+    const otp=String(Math.floor(100000 + Math.random() * 900000));
+    user.resetOtp=otp;
+    user.resetOtpExpireAt=Date.now()+15*60*1000;
+    user.save();
+    const mailOption={
+      from:process.env.SENDER_EMAIL,
+      to:user.email,
+      subject:"Reset Otp verification",
+      text:`Your account passwod opt  is ${otp}`,
+      html: `
+        <!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Welcome to Our Website!</title>
+</head>
+<body style="font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 20px; text-align: center;">
+  <div style="max-width: 500px; background-color: #ffffff; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); margin: auto;">
+   
+    <p style="color: #555; font-size: 16px;">Hello there,</p>
+    <p style="color: #555; font-size: 16px;">Your password reset otp is ${otp} <b style="color: #0073e6;">${user.email}</b>.</p>
+    <p style="color: #555; font-size: 16px;">verify your account within 15 minutes </p>
+    
+    <p style="color: #555; font-size: 14px; margin-top: 20px;">If you have any questions, feel free to <a href="mailto:support@yourwebsite.com" style="color: #0073e6; text-decoration: none;">contact us</a>.</p>
+  </div>
+</body>
+</html>
+
+      `
+    }
+    await transporter.sendMail(mailOption);
+    return res.json({
+      success:true,
+      message:"OTP sent successfully",
+    })
+    }
+
+
+
+  catch(err){
+    return res.json({
+      success: false,
+      message: err.message,
+    })
+  }
+
+ }
+
+ async function resetPassword(req,res){
+  const {email,otp,newPassword}=req.body;
+  if(!email || !otp || !newPassword){
+    return res.json({
+      success:false,
+      message:"Please provide all the required details",
+    })
+  }
+  try{
+    const user=await userModel.findOne({email});
+    if(!user){
+      return res.json({
+        success:false,
+        message:"user not found",
+      })
+
+    }
+    if(user.resetOtp === '' || user.resetOtp !== otp){
+      return res.json({
+        success:false,
+        message:"Invalid OTP",
+      });
+    }
+    if(user.resetOtpExpireAt < Date.now()){
+      return res.json({
+        success:false,
+        message:"OTP expired",
+      });
+    }
+    const hashedPassword=await bcrypt.hash(newPassword,10);
+    user.password=hashedPassword;
+    user.resetOtp="";
+    user.resetOtpExpireAt=0;
+    await user.save();
+    return res.json({
+      success:true,
+      message:"Password reset successfully",
+    })
+  }
+catch(err){
+  return res.json({
+    success: false,
+    message: err.message,
+  })
+}
+ }
+
+
+
+
+ async function deleteUser(req,res){
+
+  const {userId}=req.body
+  if(!userId){
+    return res.json({
+      success:false,
+      message:"Please provide all the required details",
+    })
+  }
+  try{
+    const user=await userModel.findByIdAndDelete(userId);
+    if(!user){
+      return res.json({
+        success:false,
+        message:"user not found",
+      })
+    }
+    return res.json({
+      success:true,
+      message:"user deleted successfully",
+      user
+    })
+
+
+  }
+  catch(err){
+    return res.json({
+      success: false,
+      message: err.message,
+    })
+  }
+ 
+
+ }
+
+
+
+
+
+
+
+module.exports = { register, login,logout ,sendVerificationOtp,verifyOtp,isAuthenticated,sendResetOtp,resetPassword,deleteUser};

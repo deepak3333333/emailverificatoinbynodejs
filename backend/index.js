@@ -4,6 +4,8 @@ const dotenv=require("dotenv")
 const cookieParser=require("cookie-parser")
 const { default: mongoose } = require("mongoose")
 const authRouter=require("./routes/authRoutes")
+const userRouter = require("./routes/userRoutes")
+
 
 dotenv.config();
 
@@ -20,13 +22,15 @@ const database=async()=>{
     .catch(err=>console.log(err))
 }
 
-app.use("/api/auth",authRouter)
+
 
 
 app.get("/",(req,res)=>{
     res.send("Hi There")
 }
 )
+app.use("/api/auth",authRouter)
+app.use("/api/user",userRouter)
 
 
 app.listen(PORT,()=>{
