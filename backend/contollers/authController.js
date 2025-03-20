@@ -41,7 +41,7 @@ async function register(req, res) {
     const mailOption = {
       from: process.env.SENDER_EMAIL,
       to: email,
-      subject: "Welcome to our website",
+      subject: "Welcome to our website for initial process",
       text: `Hello there, your account has been registered using ${email}.`,
       html: `
         <!DOCTYPE html>
