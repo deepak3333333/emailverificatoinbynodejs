@@ -6,12 +6,15 @@ import EmailVerify from './pages/EmailVerify'
 import ResetPassword from './pages/ResetPassword'
 
 
+import { ToastContainer, toast } from 'react-toastify';
+
+
 
 function App() {
   return (
    <>
 
-
+<ToastContainer />
    <Routes>
     <Route path='/' element={<Home/>}/>
     <Route path='/login' element={<Login/>}/>

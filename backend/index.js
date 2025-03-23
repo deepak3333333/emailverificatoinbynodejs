@@ -12,8 +12,9 @@ dotenv.config();
 const app=express();
 
 const PORT=process.env.PORT || 3000;
+
 app.use(express.json())
-app.use(cors("credentials:true"))
+app.use(cors({credentials:true}))
 app.use(cookieParser())
 
 const database=async()=>{

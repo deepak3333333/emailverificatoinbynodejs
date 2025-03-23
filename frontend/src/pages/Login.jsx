@@ -1,7 +1,11 @@
-import React, { useState } from 'react'
+import React, { useContext, useState } from 'react'
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
 import { useNavigate } from 'react-router-dom'
+import { AppContent } from '../context/AppContext'
+import axios from 'axios'
+import { toast } from 'react-toastify'
+
 
 function Login() {
   const [state, setState] = useState('Sign Up')
@@ -9,14 +13,50 @@ function Login() {
   const [email,setEmail]=useState('')
   const [password,setPassword]=useState('')
     const navigate=useNavigate()
-
-
-    const sumithandler=()=>{
+    const {bancendUrl,isLoggedIn,userData,setIsLoggedIn,setUserData}=useContext(AppContent)
     
-      console.log(name,email,password);
+
+
+    const onSubmitHandler=async(e)=>{
+      e.preventDefault()
+
+
+      if(state==='Sign Up'){
+
+        const {data}=await axios.post(bancendUrl+'/api/auth/register',{name,email,password})
+        if(data.success){
+          setIsLoggedIn(true)
+          navigate("/")
+        }
+        else{
+          toast.error(data.message)
+        }
+        
+      }else{
+        const {data}=await axios.post(bancendUrl+'/api/auth/login',{email,password})
+        if(data.success){
+          setIsLoggedIn(false)
+          navigate("/")
+        }
+        else{
+          toast.error(data.message)
+        }
+
+
+
+      }
+    
+    
       
 
     }
+
+
+
+
+
+
+    
   
   return (
     <>
@@ -35,7 +75,7 @@ function Login() {
             </p>
           </div>
           
-          <form className="space-y-6">
+          <form onSubmit={onSubmitHandler}   className="space-y-6">
             {state === 'Sign Up' && (
               <div>
                 <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
@@ -93,7 +133,7 @@ function Login() {
             )}
             
             <button
-            onClick={sumithandler}
+           
               type="submit"
               className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-white bg-gray-800 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors"
             >
