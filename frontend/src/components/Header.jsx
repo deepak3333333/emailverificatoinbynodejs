@@ -1,6 +1,11 @@
-import React from 'react';
+import React, { useContext } from 'react';
+import { AppContent } from '../context/AppContext';
+
+
 
 const Header = () => {
+
+  const {userData}=useContext(AppContent)
   return (
     <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white py-8 px-4 md:px-8">
       <div className="container mx-auto">
@@ -15,7 +20,7 @@ const Header = () => {
               </svg>
             </div>
             <div>
-              <h1 className="text-2xl md:text-3xl font-bold">Hey Developer!</h1>
+              <h1 className="text-2xl md:text-3xl font-bold">Hey {userData?userData.name:'Developer'}</h1>
               <p className="text-blue-100">Welcome to our app. Let's start a quick journey!</p>
             </div>
           </div>

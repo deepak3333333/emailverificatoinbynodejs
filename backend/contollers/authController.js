@@ -33,11 +33,12 @@ async function register(req, res) {
       { expiresIn: "7d" }
     );
     res.cookie("token", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "none",
-      maxAge: 7 * 24 * 60 * 60 * 1000,
+      httpOnly: true,  
+      secure: true, // Must be true when sameSite is 'None'
+      sameSite: "None", 
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
+    
     const mailOption = {
       from: process.env.SENDER_EMAIL,
       to: email,
@@ -111,10 +112,10 @@ async function login(req, res) {
       { expiresIn: "7d" }
     );
     res.cookie("token", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "none",
-      maxAge: 7 * 24 * 60 * 60 * 1000,
+      httpOnly: true,  
+      secure: true, // Must be true when sameSite is 'None'
+      sameSite: "None", 
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
 
     return res.json({

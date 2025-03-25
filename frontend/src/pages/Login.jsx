@@ -7,49 +7,52 @@ import axios from 'axios'
 import { toast } from 'react-toastify'
 
 
+
 function Login() {
   const [state, setState] = useState('Sign Up')
   const [name,setName]=useState('')
   const [email,setEmail]=useState('')
   const [password,setPassword]=useState('')
+  const [loading,setLoading]=useState(false)
     const navigate=useNavigate()
-    const {bancendUrl,isLoggedIn,userData,setIsLoggedIn,setUserData}=useContext(AppContent)
+    const {bancendUrl,isLoggedIn,userData,setIsLoggedIn,setUserData, getUserData}=useContext(AppContent)
+
+
+    axios.defaults.withCredentials = true;
+
+
+    const onSubmitHandler = async (e) => {
+      e.preventDefault();
+      setLoading(true);
     
-
-
-    const onSubmitHandler=async(e)=>{
-      e.preventDefault()
-
-
-      if(state==='Sign Up'){
-
-        const {data}=await axios.post(bancendUrl+'/api/auth/register',{name,email,password})
-        if(data.success){
-          setIsLoggedIn(true)
-          navigate("/")
+      try {
+       
+    
+        let response;
+        if (state === 'Sign Up') {
+          response = await axios.post(bancendUrl + '/api/auth/register', { name, email, password });
+        } else {
+          response = await axios.post(bancendUrl + '/api/auth/login', { email, password });
         }
-        else{
-          toast.error(data.message)
-        }
+    
+        const { data } = response;
         
-      }else{
-        const {data}=await axios.post(bancendUrl+'/api/auth/login',{email,password})
-        if(data.success){
-          setIsLoggedIn(false)
-          navigate("/")
+        if (data.success) {
+          setIsLoggedIn(true);
+          getUserData();
+          toast.success(data.message, { position: "bottom-left" });
+          navigate("/");
+        } else {
+          toast.error(data.message);
         }
-        else{
-          toast.error(data.message)
-        }
-
-
-
+      } catch (error) {
+        console.error("Error during authentication:", error);
+        toast.error(error.response?.data?.message || "Something went wrong.");
+      } finally {
+        setLoading(false);
       }
+    };
     
-    
-      
-
-    }
 
 
 
@@ -123,6 +126,7 @@ function Login() {
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
               />
             </div>
+            <div>{loading && <h1>loading....</h1>}</div>
             
             {state === 'Login' && (
               <div className="flex items-center justify-end">
