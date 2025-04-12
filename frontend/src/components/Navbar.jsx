@@ -23,6 +23,18 @@ const Navbar = () => {
       }
     }
 
+
+    const handlesendOtp=async()=>{
+        try{
+            axios.defaults.withCredentials=true
+            const {data}=await axios.post(bancendUrl+'/api/auth/send-verification-otp')
+            data.success && toast.success(data.message)
+            navigate('/email-verify')
+        }catch(err){
+            toast.error(err.message)
+        }
+    }
+
     return (
         <nav className="flex justify-between items-center px-6 py-4 bg-gray-900 text-white shadow-lg">
             {/* Logo with Fade In/Out Animation */}
@@ -58,10 +70,7 @@ const Navbar = () => {
                             {!userData.isAccountVerified && (
                                 <li 
                                     className="px-4 py-2 hover:bg-gray-100 cursor-pointer transition duration-300"
-                                    onClick={() => {
-                                        // Add verification logic here
-                                        console.log("Verify Account");
-                                    }}
+                                 onClick={handlesendOtp}
                                 >
                                     Verify Account
                                 </li>
