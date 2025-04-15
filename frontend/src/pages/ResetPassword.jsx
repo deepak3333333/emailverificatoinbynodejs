@@ -1,6 +1,11 @@
-import React from 'react'
+import React, { useContext, useEffect } from 'react'
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
+import axios from 'axios';
+import { AppContent } from '../context/AppContext';
+import { toast } from 'react-toastify';
+
+
 
 function ResetPassword() {
   const [email, setEmail] = React.useState("");
@@ -8,6 +13,8 @@ function ResetPassword() {
   const [newPassword, setNewPassword] = React.useState("");
   const [isEmailSent, setIsEmailSent] = React.useState(false);
   const [isOtpVerified, setIsOtpVerified] = React.useState(false);
+  axios.defaults.withCredentials = true;
+  const {bancendUrl}=useContext(AppContent)
 
   const handleChange = (e) => {
     const value = e.target.value;
@@ -16,21 +23,69 @@ function ResetPassword() {
     }
   };
 
-  const handleSubmitEmail = (e) => {
+  const handleSubmitEmail = async(e) => {
     e.preventDefault();
-    setIsEmailSent(true);
+    try{
+      const {data}=await axios.post(bancendUrl+"/api/auth/send-reset-otp", {email});
+      data.success?toast.success(data.message):toast.error(data.message);
+      data.success?setIsEmailSent(true):setIsEmailSent(false);
+
+    }
+    catch(err){
+      // toast.error(data. message);
+      alert("Something went wrong!");
+      
+    }
   };
 
-  const handleVerifyOtp = (e) => {
+  const handleVerifyOtp =async (e) => {
     e.preventDefault();
+   
+    
+
+
+
+
+
+
     setIsOtpVerified(true);
   };
 
-  const handleResetPassword = (e) => {
+  const handleResetPassword = async(e) => {
     e.preventDefault();
-    // Handle password reset logic here
-    alert("Password reset successful!");
+    try{
+      const {data}=await axios.post(bancendUrl+"/api/auth/resetPassword", {email, otp, newPassword});
+      data.success?toast.success(data.message):toast.error(data.message);
+      if(data.success){
+        setIsEmailSent(true);
+        setIsOtpVerified(false);
+        setEmail("");
+        setOtp("");
+        setNewPassword("");
+      }
+      else{
+        setIsEmailSent(true);
+        setIsOtpVerified(true);
+      }
+
+      
+     
+
+
+    }
+    catch(error){
+      toast.error("Something went wrong!");
+
+    }
+   
   };
+
+
+  useEffect(()=>{
+    if(isEmailSent){
+      setIsOtpVerified(false);
+    }
+  },[isEmailSent]);
 
   return (
     <>
@@ -61,7 +116,7 @@ function ResetPassword() {
                 type="submit"
                 className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg transition duration-200"
               >
-                Send Reset Link
+                Send Otp
               </button>
               <div className="text-center mt-6">
                 <p className="text-sm text-gray-600">

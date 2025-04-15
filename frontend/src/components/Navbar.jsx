@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { AppContent } from "../context/AppContext";
@@ -10,6 +10,26 @@ const Navbar = () => {
     const navigate = useNavigate();
     const { userData , bancendUrl,setIsLoggedIn,setUserData} = useContext(AppContent);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+
+
+    const deleteAccount=async()=>{
+        try{
+            axios.defaults.withCredentials=true
+            const {data}=await axios.delete(bancendUrl+'/api/auth/deleteuser')
+            data.success && setUserData(null)
+            data.success && toast.success(data.message)
+            data.success && setIsLoggedIn(false)
+            navigate('/login')
+        }catch(err){
+            toast.error(err.message)
+        }
+
+
+
+
+    }
+
     const logout=async()=>{
       try{
         axios.defaults.withCredentials=true
@@ -34,6 +54,9 @@ const Navbar = () => {
             toast.error(err.message)
         }
     }
+    useEffect(()=>{
+        
+    },userData)
 
     return (
         <nav className="flex justify-between items-center px-6 py-4 bg-gray-900 text-white shadow-lg">
@@ -80,6 +103,12 @@ const Navbar = () => {
                                 onClick={logout}
                             >
                                 Logout
+                            </li>
+                            <li 
+                                className="px-4 py-2 hover:bg-gray-100 cursor-pointer transition duration-300"
+                                onClick={deleteAccount}
+                            >
+                                delete account
                             </li>
                         </ul>
                     )}
